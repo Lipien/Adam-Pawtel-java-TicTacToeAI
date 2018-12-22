@@ -2,7 +2,7 @@ package tictactoeai;
 
 public class CPUplayer implements AIPlayer {
 
-    @Override
+   @Override
     public int[][] getPreferredMoves() {
         int[][] preferredMoves = {
                 {1, 1}, {0, 0}, {0, 2}, {2, 0}, {2, 2},
@@ -10,16 +10,17 @@ public class CPUplayer implements AIPlayer {
         return preferredMoves;
     }
 
-    @Override
-    public int[] move(Cell[][] cell) {
 
-            for (int[] move : getPreferredMoves()) {
-                if (cell[move[0]][move[1]].getPlayer() == ' ') {
-                    return move;
-                }
+    @Override
+    public int[] move(Cell[][] cells) {
+
+        for (int[] move : getPreferredMoves()) {
+            if (cells[move[0]][move[1]].getCellContent() == CellContent.EMPTY) {
+                return move;
             }
-            assert false : "No empty cell?!";
-            return null;
+        }
+        assert false : "No empty cell?!";
+        return null;
 
     }
 }

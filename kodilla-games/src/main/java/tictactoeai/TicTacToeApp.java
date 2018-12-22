@@ -17,14 +17,15 @@ public class TicTacToeApp extends Application {
     private static final int WIDTH = 500;
     private static final int HEIGHT = 400;
     private static final String TITLE = "Tic Tac Toe (JavaFX)";
-    private char currentPlayer = 'X';
-    private char comp = 'O';
-    private Cell[][] cell = new Cell[3][3];
-    private Label statusMsg = new Label("  X has to move first");
+    private CellContent currentPlayer = CellContent.CROSS;
+    private CellContent comp = CellContent.NOUGHT;
+    private Cell[][] cells = new Cell[3][3];
+    private Label statusMsg = new Label(currentPlayer + "es move first");
     private RadioButton radioButton = new RadioButton("play against PC");
     private GridPane gridPane;
     private BorderPane borderPane;
     private AIPlayer aiPlayer;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -33,6 +34,7 @@ public class TicTacToeApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         aiPlayer = new CPUplayer();
+
         initBoard();
         statusMsg.setFont(Font.font("Verdana", 20));
         borderPane = new BorderPane();
@@ -48,10 +50,10 @@ public class TicTacToeApp extends Application {
         newGameButton.setOnAction(event -> {
                     try {
                         initBoard();
-                        currentPlayer = 'X';
-                        comp = 'O';
+                        currentPlayer = CellContent.CROSS;
+                        comp = CellContent.NOUGHT;
                         borderPane.setCenter(gridPane);
-                        statusMsg.setText("  X has to move first");
+                        statusMsg.setText(CellContent.CROSS + "es move first");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -82,43 +84,43 @@ public class TicTacToeApp extends Application {
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                cell[i][j] = new Cell();
-                cell[i][j].setOnMouseClicked(e -> handleClick(e));
-                gridPane.add(cell[i][j], i, j);
+                cells[i][j] = new Cell();
+                cells[i][j].setOnMouseClicked(e -> handleClick(e));
+                gridPane.add(cells[i][j], i, j);
             }
         }
     }
 
-    private boolean hasWon(char player) {
+    private boolean hasWon(CellContent cellContent) {
         for (int i = 0; i < 3; i++)
-            if (cell[i][0].getPlayer() == player && cell[i][1].getPlayer() == player
-                    && cell[i][2].getPlayer() == player) {
-                cell[i][0].setStyle("-fx-background-color: darkgray;");
-                cell[i][1].setStyle("-fx-background-color: darkgray;");
-                cell[i][2].setStyle("-fx-background-color: darkgray;");
+            if (cells[i][0].getCellContent() == cellContent && cells[i][1].getCellContent() == cellContent
+                    && cells[i][2].getCellContent() == cellContent) {
+                cells[i][0].setStyle("-fx-background-color: darkgray;");
+                cells[i][1].setStyle("-fx-background-color: darkgray;");
+                cells[i][2].setStyle("-fx-background-color: darkgray;");
                 return true;
             }
         for (int i = 0; i < 3; i++) {
-            if (cell[0][i].getPlayer() == player && cell[1][i].getPlayer() == player
-                    && cell[2][i].getPlayer() == player) {
-                cell[0][i].setStyle("-fx-background-color: darkgray;");
-                cell[1][i].setStyle("-fx-background-color: darkgray;");
-                cell[2][i].setStyle("-fx-background-color: darkgray;");
+            if (cells[0][i].getCellContent() == cellContent && cells[1][i].getCellContent() == cellContent
+                    && cells[2][i].getCellContent() == cellContent) {
+                cells[0][i].setStyle("-fx-background-color: darkgray;");
+                cells[1][i].setStyle("-fx-background-color: darkgray;");
+                cells[2][i].setStyle("-fx-background-color: darkgray;");
                 return true;
             }
         }
-        if (cell[0][0].getPlayer() == player && cell[1][1].getPlayer() == player
-                && cell[2][2].getPlayer() == player) {
-            cell[0][0].setStyle("-fx-background-color: darkgray;");
-            cell[1][1].setStyle("-fx-background-color: darkgray;");
-            cell[2][2].setStyle("-fx-background-color: darkgray;");
+        if (cells[0][0].getCellContent() == cellContent && cells[1][1].getCellContent() == cellContent
+                && cells[2][2].getCellContent() == cellContent) {
+            cells[0][0].setStyle("-fx-background-color: darkgray;");
+            cells[1][1].setStyle("-fx-background-color: darkgray;");
+            cells[2][2].setStyle("-fx-background-color: darkgray;");
             return true;
         }
-        if (cell[0][2].getPlayer() == player && cell[1][1].getPlayer() == player
-                && cell[2][0].getPlayer() == player) {
-            cell[0][2].setStyle("-fx-background-color: darkgray;");
-            cell[1][1].setStyle("-fx-background-color: darkgray;");
-            cell[2][0].setStyle("-fx-background-color: darkgray;");
+        if (cells[0][2].getCellContent() == cellContent && cells[1][1].getCellContent() == cellContent
+                && cells[2][0].getCellContent() == cellContent) {
+            cells[0][2].setStyle("-fx-background-color: darkgray;");
+            cells[1][1].setStyle("-fx-background-color: darkgray;");
+            cells[2][0].setStyle("-fx-background-color: darkgray;");
             return true;
         }
         return false;
@@ -129,7 +131,7 @@ public class TicTacToeApp extends Application {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++)
 
-                if (cell[i][j].getPlayer() == ' ') {
+                if (cells[i][j].getCellContent() == CellContent.EMPTY) {
                     return false;
                 }
         }
@@ -137,52 +139,50 @@ public class TicTacToeApp extends Application {
     }
 
 
-
     public boolean compTurn() {
-        int[] move = aiPlayer.move(cell);
+        int[] move = aiPlayer.move(cells);
         int see = 0;
         while (see == 0) {
             if (move != null) {
-                cell[move[0]][move[1]].setPlayer(comp);
+                cells[move[0]][move[1]].setCellContent(comp);
                 see = 1;
             }
             if (hasWon(comp)) {
-                statusMsg.setText(comp + " won! The game is over");
-                comp = ' ';
+                statusMsg.setText(comp + " wins! The game is over");
+                currentPlayer = CellContent.EMPTY;
             } else if (isBoardFull()) {
-                statusMsg.setText("Draw! The game is over");
-                comp = ' ';
+                statusMsg.setText("Draw! Play one more time :-)");
             }
         }
         return false;
     }
 
     private void handleClick(MouseEvent e) {
-        Cell cell = (Cell) e.getSource();
+        Cell cells = (Cell) e.getSource();
         if (radioButton.isSelected()) {
-            if (cell.getPlayer() == ' ' && currentPlayer != ' ') {
-                cell.setPlayer(currentPlayer);
-                if (hasWon(currentPlayer)) {
-                    statusMsg.setText(currentPlayer + " won!");
-                    currentPlayer = ' ';
+            if (cells.getCellContent() == CellContent.EMPTY && currentPlayer != CellContent.EMPTY) {
+                cells.setCellContent(currentPlayer);
+                if (hasWon(cells.getCellContent())) {
+                    statusMsg.setText(currentPlayer + " wins!");
+                    currentPlayer = CellContent.EMPTY;
                 } else if (isBoardFull()) {
                     statusMsg.setText("Draw!");
-                    currentPlayer = ' ';
+                    currentPlayer = CellContent.EMPTY;
                 } else {
                     compTurn();
                 }
             }
         } else {
-            if (cell.getPlayer() == ' ' && currentPlayer != ' ') {
-                cell.setPlayer(currentPlayer);
-                if (hasWon(currentPlayer)) {
-                    statusMsg.setText(currentPlayer + " won !");
-                    currentPlayer = ' ';
+            if (cells.getCellContent() == CellContent.EMPTY && currentPlayer != CellContent.EMPTY) {
+                cells.setCellContent(currentPlayer);
+                if (hasWon(cells.getCellContent())) {
+                    statusMsg.setText(currentPlayer + " wins !");
+                    currentPlayer = CellContent.EMPTY;
                 } else if (isBoardFull()) {
                     statusMsg.setText("Draw!");
-                    currentPlayer = ' ';
+                    currentPlayer = CellContent.EMPTY;
                 } else {
-                    currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
+                    currentPlayer = (currentPlayer == CellContent.CROSS) ? CellContent.NOUGHT : CellContent.CROSS;
                     statusMsg.setText(" Now it's " + currentPlayer + "'s move");
                 }
             }
